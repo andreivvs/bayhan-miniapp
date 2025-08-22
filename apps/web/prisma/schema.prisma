@@ -37,13 +37,12 @@ model Property {
 }
 
 model Share {
-  id          String   @id @default(cuid())
-  propertyId  String
-  ownerId     String
-  fraction    String
-  property    Property @relation(fields: [propertyId], references: [id])
-  owner       User     @relation(fields: [ownerId], references: [id])
-  bookings    Booking[]
+  id       BigInt    @id @default(autoincrement())
+  property Property @relation(fields: [propertyId], references: [id])
+  propertyId BigInt
+  owner    User     @relation(fields: [ownerId], references: [id])
+  ownerId  Int
+  bookings Booking[]
 }
 
 model CalendarSlot {
@@ -64,12 +63,12 @@ enum SlotType {
 }
 
 model Booking {
-  id      Int    @id @default(autoincrement())
-  user    User   @relation(fields: [userId], references: [id])
+  id      BigInt   @id @default(autoincrement())
+  user    User     @relation(fields: [userId], references: [id])
   userId  Int
-  share   Share  @relation(fields: [shareId], references: [id])
-  shareId Int
-  slotId  Int
+  share   Share    @relation(fields: [shareId], references: [id])
+  shareId BigInt
+  slotId  BigInt
   status  String
   requestedAt DateTime @default(now())
 }
@@ -82,15 +81,10 @@ enum BookingStatus {
 }
 
 model Exchange {
-  id            String   @id @default(cuid())
-  requesterId   String
-  fromBookingId String
-  targetPropId  String
-  targetSlotId  String
-  status        ExchangeStatus @default(PENDING)
-  message       String?
-  history       Json?
-  requester     User     @relation("UserExchanges", fields: [requesterId], references: [id])
+  id          BigInt @id @default(autoincrement())
+  requester   User   @relation("UserExchanges", fields: [requesterId], references: [id])
+  requesterId Int    // должно совпадать с User.id (Int)
+  history     Json?
 }
 
 enum ExchangeStatus {
