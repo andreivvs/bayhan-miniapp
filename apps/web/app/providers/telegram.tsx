@@ -17,14 +17,14 @@ declare global {
 
 export function TelegramProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Инициализация Telegram Web App SDK
+    // Инициализация Telegram SDK
     init()
 
-    // Получаем launch params
+    // Получение launch params
     const launchParams = window.Telegram?.WebApp?.initData || {}
     console.log('Telegram launch params:', launchParams)
 
-    // expand to full height и показать back button
+    // Expand to full height и показать back button
     window.Telegram?.WebApp?.expand?.()
     window.Telegram?.WebApp?.BackButton?.show?.()
   }, [])
