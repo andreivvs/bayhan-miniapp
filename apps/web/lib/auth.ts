@@ -21,6 +21,10 @@ export function isInitDataValid(initData: string): boolean {
 
   return calc === hash
 }
+export function tokenForUser(user: { id: number; role: Role }): string {
+  return sign({ uid: user.id.toString(), role: user.role }, '30m')
+}
+
 
 // Получаем или создаём пользователя в базе
 export async function userFromInitData(initData: string) {
