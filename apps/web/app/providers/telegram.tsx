@@ -4,8 +4,16 @@ import { init } from '@telegram-apps/sdk'
 
 export function TelegramProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Инициализация SDK Telegram Web App
+    // Инициализация Telegram Web App SDK
     init()
+
+    // Получение параметров запуска (launchParams)
+    const launchParams = window.Telegram?.WebApp?.initData || {}
+    console.log('Telegram launch params:', launchParams)
+
+    // expand to full height and show back button
+    window.Telegram?.WebApp?.expand?.()
+    window.Telegram?.WebApp?.BackButton?.show?.()
   }, [])
 
   return <>{children}</>
