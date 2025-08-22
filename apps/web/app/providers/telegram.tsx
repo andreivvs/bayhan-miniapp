@@ -33,14 +33,20 @@ export function TelegramProvider({ children }: { children: React.ReactNode }) {
 }
 
 
+import { useEffect } from 'react'
+
 function Initializer() {
-  const lp = useLaunchParams()
   useEffect(() => {
-    // expand to full height and show back button where supported
+    // expand to full height и показать back button
     const wa = (window as any)?.Telegram?.WebApp
     wa?.expand?.()
     wa?.BackButton?.show?.()
-    // theme sync if needed: wa?.setHeaderColor?
-  }, [lp])
+    
+    // Если нужны launch params, получаем напрямую:
+    const launchParams = wa?.initData || {}
+    console.log('Telegram launch params:', launchParams)
+  }, [])
+
   return null
 }
+
