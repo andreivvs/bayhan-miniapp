@@ -30,6 +30,7 @@ model Property {
   title   String
   shares  Share[]
   slots   CalendarSlot[]
+  gallery Json?
 }
 
 model Share {
