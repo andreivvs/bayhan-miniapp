@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  telegramId BigInt   @unique
+  username   String?
+  firstName  String?
+  lastName   String?
+  phone      String?  @db.VarChar(32)
+  email      String?  @unique
+  role       Role     @default(OWNER)
+  shares     Share[]
+  bookings   Booking[]
+  exchanges  Exchange[] @relation("UserExchanges")
+  createdAt  DateTime @default(now())
+}
+
+enum Role {
+  OWNER
+  ADMIN
+}
+
+model Property {
+  id            String   @id @default(cuid())
+  title         String
+  location      String
+  rooms         Int
+  areaM2        Int
+  gallery       Json
+  coordinates   Json?
+  shares        Share[]
+  calendarSlots CalendarSlot[]
+}
+
+model Share {
+  id          String   @id @default(cuid())
+  propertyId  String
+  ownerId     String
+  fraction    String
+  property    Property @relation(fields: [propertyId], references: [id])
+  owner       User     @relation(fields: [ownerId], references: [id])
+  bookings    Booking[]
+}
+
+model CalendarSlot {
+  id          String   @id @default(cuid())
+  propertyId  String
+  startDate   DateTime
+  endDate     DateTime
+  type        SlotType
+  priority    Boolean  @default(false)
+  booking     Booking?
+  property    Property @relation(fields: [propertyId], references: [id])
+}
+
+enum SlotType {
+  AVAILABLE
+  BLOCKED_HOLIDAY
+  BOOKED
+}
+
+model Booking {
+  id           String   @id @default(cuid())
+  shareId      String
+  slotId       String   @unique
+  status       BookingStatus @default(PENDING)
+  requestedAt  DateTime @default(now())
+  confirmedAt  DateTime?
+  comment      String?
+  share        Share   @relation(fields: [shareId], references: [id])
+  slot         CalendarSlot @relation(fields: [slotId], references: [id])
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model Exchange {
+  id            String   @id @default(cuid())
+  requesterId   String
+  fromBookingId String
+  targetPropId  String
+  targetSlotId  String
+  status        ExchangeStatus @default(PENDING)
+  message       String?
+  history       Json?
+  requester     User     @relation("UserExchanges", fields: [requesterId], references: [id])
+}
+
+enum ExchangeStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
