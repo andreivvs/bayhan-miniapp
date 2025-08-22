@@ -1,9 +1,8 @@
 {
   "name": "bayhan-miniapp",
   "private": true,
-  "packageManager": "pnpm@5.85.5",
-  "@tanstack/react-query": "^5.85.5",
-  "workspaces": [
+  "packageManager": "pnpm@9.6.0",
+   "workspaces": [
     "apps/*"
   ],
   "scripts": {
