@@ -1,13 +1,13 @@
 'use client'
-import { SDKProvider, useLaunchParams } from '@telegram-apps/sdk-react'
+import { TelegramWebAppProvider, useLaunchParams } from '@telegram-apps/sdk-react'
 import React, { useEffect } from 'react'
 
 export function TelegramProvider({ children }: { children: React.ReactNode }) {
   return (
-    <SDKProvider>
+    <TelegramWebAppProvider>
       <Initializer />
       {children}
-    </SDKProvider>
+    </TelegramWebAppProvider>
   )
 }
 
