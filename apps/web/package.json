@@ -23,7 +23,12 @@
     "react-dom": "18.3.1",
     "zod": "3.23.8"
   },
-  "devDependencies": {
+   "scripts": {
+    "postinstall": "prisma generate",
+    "build": "next build",
+    "dev": "next dev"
+  },
+    "devDependencies": {
     "@types/jsonwebtoken": "9.0.6",
     "@types/node": "20.12.12",
     "@types/react": "18.3.3",
