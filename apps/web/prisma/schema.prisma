@@ -9,18 +9,14 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(cuid())
+  id        Int       @id @default(autoincrement())
+  username  String?
+  firstName String?
+  lastName  String?
   telegramId BigInt   @unique
-  username   String?
-  firstName  String?
-  lastName   String?
-  phone      String?  @db.VarChar(32)
-  email      String?  @unique
-  role       Role     @default(OWNER)
-  shares     Share[]
-  bookings   Booking[]
-  exchanges  Exchange[] @relation("UserExchanges")
-  createdAt  DateTime @default(now())
+  shares    Share[]
+  bookings  Booking[] // relation field
+  exchanges Exchange[] @relation("UserExchanges")
 }
 
 enum Role {
@@ -68,15 +64,14 @@ enum SlotType {
 }
 
 model Booking {
-  id           String   @id @default(cuid())
-  shareId      String
-  slotId       String   @unique
-  status       BookingStatus @default(PENDING)
-  requestedAt  DateTime @default(now())
-  confirmedAt  DateTime?
-  comment      String?
-  share        Share   @relation(fields: [shareId], references: [id])
-  slot         CalendarSlot @relation(fields: [slotId], references: [id])
+  id      Int    @id @default(autoincrement())
+  user    User   @relation(fields: [userId], references: [id])
+  userId  Int
+  share   Share  @relation(fields: [shareId], references: [id])
+  shareId Int
+  slotId  Int
+  status  String
+  requestedAt DateTime @default(now())
 }
 
 enum BookingStatus {
