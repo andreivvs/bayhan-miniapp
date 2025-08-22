@@ -3,9 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")     // миграции (всегда Direct 5432)
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL") // миграции (всегда Direct 5432)
 }
 
 model User {
@@ -15,7 +15,7 @@ model User {
   lastName  String?
   telegramId BigInt   @unique
   shares    Share[]
-  bookings  Booking[] // relation field
+  bookings  Booking[]
   exchanges Exchange[] @relation("UserExchanges")
 }
 
@@ -25,35 +25,31 @@ enum Role {
 }
 
 model Property {
-  id            String   @id @default(cuid())
-  title         String
-  location      String
-  rooms         Int
-  areaM2        Int
-  gallery       Json
-  coordinates   Json?
-  shares        Share[]
-  calendarSlots CalendarSlot[]
+  id      Int      @id @default(autoincrement())
+  title   String
+  shares  Share[]
+  slots   CalendarSlot[]
 }
 
 model Share {
-  id       BigInt    @id @default(autoincrement())
-  property Property @relation(fields: [propertyId], references: [id])
-  propertyId BigInt
-  owner    User     @relation(fields: [ownerId], references: [id])
-  ownerId  Int
-  bookings Booking[]
+  id         Int      @id @default(autoincrement())
+  property   Property @relation(fields: [propertyId], references: [id])
+  propertyId Int
+  owner      User     @relation(fields: [ownerId], references: [id])
+  ownerId    Int
+  bookings   Booking[]
 }
 
 model CalendarSlot {
-  id          String   @id @default(cuid())
-  propertyId  String
+  id          String        @id @default(cuid())
+  property    Property      @relation(fields: [propertyId], references: [id])
+  propertyId  Int
   startDate   DateTime
   endDate     DateTime
   type        SlotType
-  priority    Boolean  @default(false)
-  booking     Booking?
-  property    Property @relation(fields: [propertyId], references: [id])
+  priority    Boolean       @default(false)
+  booking     Booking?      @relation(fields: [bookingId], references: [id])
+  bookingId   Int?
 }
 
 enum SlotType {
@@ -63,14 +59,14 @@ enum SlotType {
 }
 
 model Booking {
-  id      BigInt   @id @default(autoincrement())
-  user    User     @relation(fields: [userId], references: [id])
-  userId  Int
-  share   Share    @relation(fields: [shareId], references: [id])
-  shareId BigInt
-  slotId  BigInt
-  status  String
-  requestedAt DateTime @default(now())
+  id        Int           @id @default(autoincrement())
+  slot      CalendarSlot  @relation(fields: [slotId], references: [id])
+  slotId    String
+  user      User          @relation(fields: [userId], references: [id])
+  userId    Int
+  share     Share         @relation(fields: [shareId], references: [id])
+  shareId   Int
+  status    BookingStatus
 }
 
 enum BookingStatus {
@@ -83,7 +79,7 @@ enum BookingStatus {
 model Exchange {
   id          BigInt @id @default(autoincrement())
   requester   User   @relation("UserExchanges", fields: [requesterId], references: [id])
-  requesterId Int    // должно совпадать с User.id (Int)
+  requesterId Int
   history     Json?
 }
 
