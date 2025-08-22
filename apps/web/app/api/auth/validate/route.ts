@@ -15,7 +15,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'no user' }, { status: 401 })
     }
 
-    const token = tokenForUser(user)
+    // Приведение user к типу, который ожидает tokenForUser
+    const token = tokenForUser({ id: user.id.toString(), role: user.role })
+
     return NextResponse.json({ token })
   } catch (err) {
     console.error('Error in /api/auth/validate:', err)
