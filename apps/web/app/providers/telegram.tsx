@@ -20,7 +20,7 @@ export function TelegramProvider({ children }: { children: React.ReactNode }) {
     // Инициализация Telegram SDK
     init()
 
-    // Получение launch params
+    // Получение launch params напрямую
     const launchParams = window.Telegram?.WebApp?.initData || {}
     console.log('Telegram launch params:', launchParams)
 
