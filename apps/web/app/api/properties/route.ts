@@ -7,3 +7,10 @@ export async function GET() {
   })
   return NextResponse.json(props.map(p => ({ ...p, gallery: (p.gallery as any[]) ?? [] })))
 }
+const booking = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+  const b = await tx.booking.create({
+    data: { shareId: share.id, slotId: slot.id, status: 'PENDING' }
+  })
+  await tx.calendarSlot.update({ where: { id: slot.id }, data: { type: 'BOOKED' } })
+  return b
+})
