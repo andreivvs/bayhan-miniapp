@@ -32,6 +32,7 @@ export function TelegramProvider({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+
 function Initializer() {
   const lp = useLaunchParams()
   useEffect(() => {
