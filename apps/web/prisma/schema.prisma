@@ -81,12 +81,17 @@ enum BookingStatus {
 }
 
 model Exchange {
-  id          BigInt         @id @default(autoincrement())
-  requester   User           @relation("UserExchanges", fields: [requesterId], references: [id])
-  requesterId Int
-  history     Json?
-  status      ExchangeStatus @default(PENDING) // <-- добавляем
+  id            BigInt         @id @default(autoincrement())
+  requester     User           @relation("UserExchanges", fields: [requesterId], references: [id])
+  requesterId   Int
+  fromBookingId Int
+  targetPropId  Int
+  targetSlotId  String
+  message       String?
+  history       Json?
+  status        ExchangeStatus @default(PENDING)
 }
+
 
 enum ExchangeStatus {
   PENDING
