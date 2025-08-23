@@ -3,7 +3,12 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   const properties = await prisma.property.findMany({
-    include: { shares: true, slots: true },
+    include: {
+      shares: {
+        include: { bookings: true },
+      },
+      slots: true,
+    },
   });
 
   const result = properties.map(p => ({
@@ -18,13 +23,13 @@ export async function GET() {
       id: s.id,
       ownerId: s.ownerId,
       fraction: s.fraction ?? null,
-      bookings: s.bookings?.map(b => ({
+      bookings: s.bookings.map(b => ({
         id: b.id,
         slotId: b.slotId,
         userId: b.userId,
         status: b.status,
         requestedAt: b.requestedAt.toISOString(),
-      })) ?? []
+      })),
     })),
     slots: p.slots.map(slot => ({
       id: slot.id,
