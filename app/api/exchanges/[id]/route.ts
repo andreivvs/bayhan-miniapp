@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } } // ✅ Тип указан inline — безопасно и для TS, и для Next.js
-) {
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const { id } = params;
 
-  // Проверка ID
   if (!id) {
     return NextResponse.json({ error: 'Missing exchange ID' }, { status: 400 });
   }
@@ -19,11 +15,9 @@ export async function POST(
     return NextResponse.json({ error: 'Invalid exchange ID format' }, { status: 400 });
   }
 
-  // Парсим тело запроса
   const body = await req.json();
   const { action } = body;
 
-  // Валидация действия
   if (action !== 'APPROVE' && action !== 'REJECT') {
     return NextResponse.json(
       { error: 'Invalid action. Must be "APPROVE" or "REJECT"' },
@@ -31,7 +25,6 @@ export async function POST(
     );
   }
 
-  // Проверяем, существует ли exchange
   const exchange = await prisma.exchange.findUnique({
     where: { id: exchangeId },
   });
@@ -40,10 +33,9 @@ export async function POST(
     return NextResponse.json({ error: 'Exchange not found' }, { status: 404 });
   }
 
-  // Обновляем статус
   const updatedExchange = await prisma.exchange.update({
     where: { id: exchangeId },
-     data: { status: action === 'APPROVE' ? 'APPROVED' : 'REJECTED' },
+     { status: action === 'APPROVE' ? 'APPROVED' : 'REJECTED' },
   });
 
   return NextResponse.json(updatedExchange);
