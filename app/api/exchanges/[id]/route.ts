@@ -1,25 +1,47 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+
 export async function POST(req: NextRequest, { params }) {
-  const { action } = await req.json();
-  const exchangeId = BigInt(params.id);
+  const { id } = params;
 
-  const ex = await prisma.exchange.findUnique({ where: { id: exchangeId } });
-  if (!ex) return NextResponse.json({ error: 'not found' }, { status: 404 });
-
-  if (action === 'REJECT') {
-    const updated = await prisma.exchange.update({
-      where: { id: exchangeId },
-      data: { status: 'REJECTED' }
-    });
-    return NextResponse.json(updated);
+  // Проверка ID
+  if (!id) {
+    return NextResponse.json({ error: 'Missing exchange ID' }, { status: 400 });
   }
 
-  if (action === 'APPROVE') {
-    const updated = await prisma.exchange.update({
-      where: { id: exchangeId },
-      data: { status: 'APPROVED' }
-    });
-    return NextResponse.json(updated);
+  let exchangeId: bigint;
+  try {
+    exchangeId = BigInt(id);
+  } catch {
+    return NextResponse.json({ error: 'Invalid exchange ID format' }, { status: 400 });
   }
 
-  return NextResponse.json({ error: 'invalid action' }, { status: 400 });
+  // Парсим тело запроса
+  const body = await req.json();
+  const { action } = body;
+
+  // Валидация действия
+  if (action !== 'APPROVE' && action !== 'REJECT') {
+    return NextResponse.json(
+      { error: 'Invalid action. Must be "APPROVE" or "REJECT"' },
+      { status: 400 }
+    );
+  }
+
+  // Проверяем, существует ли exchange
+  const exchange = await prisma.exchange.findUnique({
+    where: { id: exchangeId },
+  });
+
+  if (!exchange) {
+    return NextResponse.json({ error: 'Exchange not found' }, { status: 404 });
+  }
+
+  // Обновляем статус
+  const updatedExchange = await prisma.exchange.update({
+    where: { id: exchangeId },
+     { status: action === 'APPROVE' ? 'APPROVED' : 'REJECTED' },
+  });
+
+  return NextResponse.json(updatedExchange);
 }
