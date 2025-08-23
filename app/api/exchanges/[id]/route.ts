@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-interface Params {
-  id: string
-}
-
-export async function POST(req: NextRequest, { params }: { params: Params }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } } // ← встроенный тип, без interface
+) {
   const { action } = await req.json() // 'APPROVE' | 'REJECT'
 
-  const exchangeId = BigInt(params.id) // <-- преобразуем в BigInt
+  const exchangeId = BigInt(params.id)
   const ex = await prisma.exchange.findUnique({ where: { id: exchangeId } })
-  if (!ex) return NextResponse.json({ error: 'not found' }, { status: 404 })
+
+  if (!ex) {
+    return NextResponse.json({ error: 'not found' }, { status: 404 })
+  }
 
   if (action === 'REJECT') {
     const updated = await prisma.exchange.update({
@@ -23,10 +25,4 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   if (action === 'APPROVE') {
     const updated = await prisma.exchange.update({
       where: { id: exchangeId },
-      data: { status: 'APPROVED' }
-    })
-    return NextResponse.json(updated)
-  }
-
-  return NextResponse.json({ error: 'invalid action' }, { status: 400 })
-}
+      data: { status: 'AP
