@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function POST(req: NextRequest, { params }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } } // ✅ Тип указан inline — безопасно и для TS, и для Next.js
+) {
   const { id } = params;
 
   // Проверка ID
@@ -40,7 +43,7 @@ export async function POST(req: NextRequest, { params }) {
   // Обновляем статус
   const updatedExchange = await prisma.exchange.update({
     where: { id: exchangeId },
-   data: { status: action === 'APPROVE' ? 'APPROVED' : 'REJECTED' },
+     data: { status: action === 'APPROVE' ? 'APPROVED' : 'REJECTED' },
   });
 
   return NextResponse.json(updatedExchange);
