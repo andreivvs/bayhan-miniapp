@@ -5,6 +5,6 @@
 
 [build.environment]
   BOT_TOKEN = "8327779189:AAFNjcwhpCYfai2Qa-JqsprzjyCH4PP-lj4"
-  DATABASE_URL = "postgresql://postgres:KQy1wE2LM55ZtBY@db.hzygydetmplfrgnligsa.supabase.co:5432/postgres?sslmode=require"
+  DATABASE_URL = "postgresql://postgres.hzygydetmplfrgnligsa:KQy1wE2LM55ZtBY@aws-1-eu-north-1.pooler.supabase.com:5432/postgres"
   JWT_SECRET = "3ecXCzfLCZDNXiuwAsYbMWMVPj1ROhXW"
   WEBAPP_URL = "http://localhost:3000"
