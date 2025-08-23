@@ -2,47 +2,32 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 export async function GET() {
-  // выбираем только реальные поля из схемы
-  const props = await prisma.property.findMany({
-    select: {
-      id: true,
-      title: true,
-      location: true,   
-      rooms: true,      
-      areaM2: true,     
-      gallery: true,   
-    },
-  })
-
-  // приводим gallery к массиву и id к string если нужно
-  const result = props.map(p => ({
-    id: p.id.toString(),          
-    location: p.location ?? '',
-    rooms: p.rooms ?? 0,
-    areaM2: p.areaM2 ?? 0,
-    gallery: Array.isArray(p.gallery) ? p.gallery : [],
-  }))
-
-  return NextResponse.json(result)
-}
-
-
-export async function GET(req: NextRequest) {
   try {
     // Получаем все свойства из базы
     const props = await prisma.property.findMany({
       select: {
         id: true,
         title: true,
-        location: true,
-        rooms: true,
-        areaM2: true,
-        gallery: true
-      }
+        location: true,  // если есть в схеме
+        rooms: true,     // если есть в схеме
+        areaM2: true,    // если есть в схеме
+        gallery: true,   // Json | null
+      },
     })
 
-    } catch (err) {
-    console.error('Error fetching properties:', err)
-    return NextResponse.json({ error: 'Failed to fetch properties' }, { status: 500 })
+    // Приводим gallery к массиву и id к string
+    const result = props.map(p => ({
+      id: p.id.toString(),
+      title: p.title,
+      location: p.location ?? '',
+      rooms: p.rooms ?? 0,
+      areaM2: p.areaM2 ?? 0,
+      gallery: Array.isArray(p.gallery) ? p.gallery : [],
+    }))
+
+    return NextResponse.json(result)
+  } catch (err) {
+    console.error('Error in /api/properties:', err)
+    return NextResponse.json({ error: 'internal server error' }, { status: 500 })
   }
 }
