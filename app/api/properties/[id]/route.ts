@@ -1,4 +1,6 @@
-// app/api/properties/[id]/route.ts
+export async function POST(req: NextRequest, { params }) {
+  const { id } = params;
+  
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
