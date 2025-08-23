@@ -1,7 +1,14 @@
 generator client {
   provider = "prisma-client-js"
+<<<<<<< HEAD
+  enableTracing = true
+=======
   enableTracing = false
+<<<<<<< HEAD
 
+=======
+>>>>>>> aa5e8426a1aaab7d813b505cb60fb34ba775b0b6
+>>>>>>> 132b64e90ec301efeb581cefd8f0c55026289875
 }
 
 datasource db {
