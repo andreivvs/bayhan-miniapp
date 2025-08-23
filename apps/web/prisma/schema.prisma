@@ -34,6 +34,7 @@ model Property {
   location String?
   rooms   Int?         
   areaM2  Float? 
+  coordinates Json?
 }
 
 model Share {
