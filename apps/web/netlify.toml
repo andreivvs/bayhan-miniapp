@@ -1,4 +1,18 @@
 [build]
-  command = "pnpm run build:web"
+  
+  command = "pnpm --filter web run build"
+ 
   publish = "apps/web/.next"
 
+  base = "."
+
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+
+[build.environment]
+  BOT_TOKEN = "8327779189:AAFNjcwhpCYfai2Qa-JqsprzjyCH4PP-lj4"
+  DATABASE_URL = "postgresql://postgres.hzygydetmplfrgnligsa:KQy@wE?LM55ZtBY@aws-1-eu-north-1.pooler.supabase.com:6543/postgres"
+  JWT_SECRET = "3ecXCzfLCZDNXiuwAsYbMWMVPj1ROhXW"
+  WEBAPP_URL = "http://localhost:3000"
