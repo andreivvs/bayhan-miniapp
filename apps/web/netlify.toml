@@ -1,16 +1,10 @@
 [build]
-  
   command = "npx prisma generate && npm run build"
   base = "apps/web"      # Папка с Next.js
   publish = ".next"
 
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-
 [build.environment]
   BOT_TOKEN = "8327779189:AAFNjcwhpCYfai2Qa-JqsprzjyCH4PP-lj4"
-  DATABASE_URL = "postgresql://postgres:KQy@wE?LM55ZtBY@db.hzygydetmplfrgnligsa.supabase.co:5432/postgres?sslmode=require"
+  DATABASE_URL = "postgresql://postgres:KQy1wE?LM55ZtBY@db.hzygydetmplfrgnligsa.supabase.co:5432/postgres?sslmode=require"
   JWT_SECRET = "3ecXCzfLCZDNXiuwAsYbMWMVPj1ROhXW"
   WEBAPP_URL = "http://localhost:3000"
