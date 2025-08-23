@@ -25,4 +25,10 @@ export async function POST(
   if (action === 'APPROVE') {
     const updated = await prisma.exchange.update({
       where: { id: exchangeId },
-      data: { status: 'AP
+      data: { status: 'APPROVED' }
+    })
+    return NextResponse.json(updated)
+  }
+
+  return NextResponse.json({ error: 'invalid action' }, { status: 400 })
+}
