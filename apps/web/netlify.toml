@@ -1,5 +1,5 @@
 [build]
-  command = "npx prisma generate && npx prisma db pull && npx prisma migrate deploy && npm run build"
+  command = "npx prisma migrate deploy --name init --create-only && npm run build"
   base = "apps/web"      # Папка с Next.js
   publish = ".next"
 
