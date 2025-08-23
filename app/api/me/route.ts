@@ -2,16 +2,17 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
-async function verifyTelegramInitData(initData: string) {
-  // Можно добавить полноценную проверку Telegram WebApp initData,
-  // например через HMAC, но здесь пример простого парсинга JSON
-  try {
-    return JSON.parse(Buffer.from(initData, 'base64').toString('utf-8'));
-  } catch {
-    return null;
-  }
+// Парсер initData из Telegram WebApp (query string формат)
+function parseTelegramInitData(initData: string) {
+  const obj: Record<string, string> = {};
+  initData.split('&').forEach(part => {
+    const [key, value] = part.split('=');
+    if (key && value) obj[key] = decodeURIComponent(value);
+  });
+  return obj;
 }
 
+// POST: авторизация через Telegram initData
 export async function POST(req: Request) {
   const { initData } = await req.json();
 
@@ -19,12 +20,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'initData is required' }, { status: 400 });
   }
 
-  const tgData = await verifyTelegramInitData(initData);
-  if (!tgData?.id) {
+  const tgData = parseTelegramInitData(initData);
+  if (!tgData.id) {
     return NextResponse.json({ error: 'Invalid initData' }, { status: 401 });
   }
 
-  // Ищем или создаём пользователя в базе
+  // Найти или создать пользователя
   let user = await prisma.user.findUnique({
     where: { telegramId: BigInt(tgData.id) },
   });
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
     });
   }
 
-  // Генерируем JWT для фронтенда
+  // Генерируем JWT
   const token = jwt.sign(
     { userId: user.id },
     process.env.JWT_SECRET || 'secret',
@@ -50,7 +51,7 @@ export async function POST(req: Request) {
   return NextResponse.json({ token });
 }
 
-// GET запрос для получения данных пользователя
+// GET: получить данные пользователя
 export async function GET(req: Request) {
   const authHeader = req.headers.get('authorization') || '';
   const token = authHeader.replace('Bearer ', '');
@@ -65,30 +66,36 @@ export async function GET(req: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
-    include: { shares: { include: { bookings: true } } },
+    include: {
+      shares: {
+        include: {
+          bookings: true
+        }
+      }
+    }
   });
 
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
-  // Сериализация BigInt и Date
+  // Сериализация всех полей для Client Components
   const result = {
     id: user.id,
-    telegramId: String(user.telegramId),
+    telegramId: user.telegramId.toString(),
     username: user.username ?? null,
     firstName: user.firstName ?? null,
     lastName: user.lastName ?? null,
     role: user.role,
-    shares: user.shares.map((s) => ({
+    shares: user.shares.map(s => ({
       id: s.id,
       propertyId: s.propertyId,
       fraction: s.fraction ?? null,
-      bookings: s.bookings.map((b) => ({
+      bookings: s.bookings.map(b => ({
         id: b.id,
         slotId: b.slotId,
         status: b.status,
         requestedAt: b.requestedAt.toISOString(),
-      })),
-    })),
+      }))
+    }))
   };
 
   return NextResponse.json(result);
