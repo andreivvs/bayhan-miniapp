@@ -1,25 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const propertyId = parseInt(params.id, 10)  // преобразуем string → number
-
-  if (isNaN(propertyId)) {
-    return NextResponse.json({ error: 'invalid id' }, { status: 400 })
-  }
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = parseInt(params.id, 10) // переменную объявляем до Prisma-запроса
 
   const prop = await prisma.property.findUnique({
-    const id = parseInt(params.id, 10);
     where: { id },
-
-})
+  })
 
   if (!prop) {
-    return NextResponse.json({ error: 'not found' }, { status: 404 })
+    return NextResponse.json({ error: "not found" }, { status: 404 })
   }
 
   return NextResponse.json({
     ...prop,
-    gallery: (prop.gallery as any[]) ?? [],
+    gallery: (prop as any).gallery ?? [], // если gallery есть в схеме
   })
 }
