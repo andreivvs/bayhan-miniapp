@@ -38,7 +38,10 @@ async function fetchJSON<T>(url: string): Promise<T> {
 
 export default function Page() {
   const [tokenReady, setTokenReady] = useState(false);
-
+  
+// app/page.tsx
+export const dynamic = 'force-dynamic';
+  
   useEffect(() => {
     validateAndGetToken().then(() => setTokenReady(true));
   }, []);
