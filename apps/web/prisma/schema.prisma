@@ -44,6 +44,7 @@ model Share {
   owner      User     @relation(fields: [ownerId], references: [id])
   ownerId    Int
   bookings   Booking[]
+  fraction   String?
 }
 
 model CalendarSlot {
