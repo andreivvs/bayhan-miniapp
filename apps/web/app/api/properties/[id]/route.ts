@@ -9,8 +9,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 
   const prop = await prisma.property.findUnique({
-    where: { id: propertyId },
-  })
+    const id = parseInt(params.id, 10);
+    where: { id },
+
+})
 
   if (!prop) {
     return NextResponse.json({ error: 'not found' }, { status: 404 })
