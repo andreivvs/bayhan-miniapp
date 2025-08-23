@@ -35,7 +35,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const updatedExchange = await prisma.exchange.update({
     where: { id: exchangeId },
-     { status: action === 'APPROVE' ? 'APPROVED' : 'REJECTED' },
+   data: { status: action === 'APPROVE' ? 'APPROVED' : 'REJECTED' },
   });
 
   return NextResponse.json(updatedExchange);
