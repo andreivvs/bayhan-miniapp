@@ -2,34 +2,19 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
-// Парсер initData из Telegram WebApp (query string формат)
-function parseTelegramInitData(initData: string) {
-  const obj: Record<string, string> = {};
-  initData.split('&').forEach(part => {
-    const [key, value] = part.split('=');
-    if (key && value) obj[key] = decodeURIComponent(value);
-  });
-  return obj;
-}
-
-// POST: авторизация через Telegram initData
 export async function POST(req: Request) {
   const { initData } = await req.json();
 
-  if (!initData) {
-    return NextResponse.json({ error: 'initData is required' }, { status: 400 });
+  if (!initData) return NextResponse.json({ error: 'initData required' }, { status: 400 });
+
+  let tgData;
+  try {
+    tgData = JSON.parse(Buffer.from(initData, 'base64').toString('utf-8'));
+  } catch {
+    return NextResponse.json({ error: 'Invalid initData' }, { status: 400 });
   }
 
-  const tgData = parseTelegramInitData(initData);
-  if (!tgData.id) {
-    return NextResponse.json({ error: 'Invalid initData' }, { status: 401 });
-  }
-
-  // Найти или создать пользователя
-  let user = await prisma.user.findUnique({
-    where: { telegramId: BigInt(tgData.id) },
-  });
-
+  let user = await prisma.user.findUnique({ where: { telegramId: BigInt(tgData.id) } });
   if (!user) {
     user = await prisma.user.create({
       data: {
@@ -41,17 +26,10 @@ export async function POST(req: Request) {
     });
   }
 
-  // Генерируем JWT
-  const token = jwt.sign(
-    { userId: user.id },
-    process.env.JWT_SECRET || 'secret',
-    { expiresIn: '7d' }
-  );
-
+  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
   return NextResponse.json({ token });
 }
 
-// GET: получить данные пользователя
 export async function GET(req: Request) {
   const authHeader = req.headers.get('authorization') || '';
   const token = authHeader.replace('Bearer ', '');
@@ -59,25 +37,19 @@ export async function GET(req: Request) {
 
   let payload: any;
   try {
-    payload = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    payload = jwt.verify(token, process.env.JWT_SECRET!);
   } catch {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
 
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
-    include: {
-      shares: {
-        include: {
-          bookings: true
-        }
-      }
-    }
+    include: { shares: { include: { bookings: true } } },
   });
 
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
-  // Сериализация всех полей для Client Components
+  // plain objects
   const result = {
     id: user.id,
     telegramId: user.telegramId.toString(),
@@ -94,8 +66,8 @@ export async function GET(req: Request) {
         slotId: b.slotId,
         status: b.status,
         requestedAt: b.requestedAt.toISOString(),
-      }))
-    }))
+      })),
+    })),
   };
 
   return NextResponse.json(result);
