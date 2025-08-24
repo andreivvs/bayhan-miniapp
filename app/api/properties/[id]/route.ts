@@ -11,7 +11,7 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
 
   const property = await prisma.property.findUnique({
     where: { id },
-    include: { slots: true, shares: true }, // оставь те include, что нужны
+    include: { slots: true, shares: true }, 
   })
 
   return NextResponse.json(property)
@@ -30,27 +30,4 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
   })
 
   return NextResponse.json(updated, { status: 200 })
-}
-
-// GET-обработчик
-export async function GET(req: NextRequest, { params }) {
-  const { id } = params;
-
-  if (!id) {
-    return NextResponse.json({ error: 'ID is required' }, { status: 400 });
-  }
-
-  try {
-    const property = await prisma.property.findUnique({
-      where: { id: Number(id) },
-    });
-
-    if (!property) {
-      return NextResponse.json({ error: 'Not found' }, { status: 404 });
-    }
-
-    return NextResponse.json(property);
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
-  }
 }
