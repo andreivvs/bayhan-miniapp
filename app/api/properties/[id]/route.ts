@@ -1,22 +1,35 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma' // если у тебя другой путь — оставь свой
 
-// Опционально: POST-обработчик (если нужен)
-export async function POST(req: NextRequest, { params }) {
-  const { id } = params;
+type RouteParams = { params: { id: string } }
 
-  // Пример: обновление свойства
-  const body = await req.json();
-
-  try {
-    const updatedProperty = await prisma.property.update({
-      where: { id: Number(id) },
-      data: body,
-    });
-    return NextResponse.json(updatedProperty);
-  } catch (error) {
-    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+export async function GET(_req: NextRequest, { params }: RouteParams) {
+  const id = Number(params.id)
+  if (Number.isNaN(id)) {
+    return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
   }
+
+  const property = await prisma.property.findUnique({
+    where: { id },
+    include: { slots: true, shares: true }, // оставь те include, что нужны
+  })
+
+  return NextResponse.json(property)
+}
+
+export async function POST(req: NextRequest, { params }: RouteParams) {
+  const id = Number(params.id)
+  if (Number.isNaN(id)) {
+    return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
+  }
+
+  const data = await req.json() // тело запроса
+  const updated = await prisma.property.update({
+    where: { id },
+    data,
+  })
+
+  return NextResponse.json(updated, { status: 200 })
 }
 
 // GET-обработчик
