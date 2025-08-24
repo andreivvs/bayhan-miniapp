@@ -1,23 +1,25 @@
-// app/api/properties/[id]/slots/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
-export async function GET(req: NextRequest, { params }) {
-  const { id } = params;
+export async function GET(_req: NextRequest, context: any) {
+  const { id } = context.params;
+  const propertyId = Number(id);
 
-  if (!id) {
-    return NextResponse.json({ error: 'Property ID is required' }, { status: 400 });
+  if (Number.isNaN(propertyId)) {
+    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   }
 
-  try {
-    const slots = await prisma.slot.findMany({
-      where: { propertyId: Number(id) },
-      orderBy: { startTime: 'asc' },
-    });
+  const slots = await prisma.calendarSlot.findMany({
+    where: { propertyId },
+    orderBy: { startDate: "asc" },
+    select: {
+      id: true,
+      startDate: true,
+      endDate: true,
+      type: true,
+      priority: true,
+    },
+  });
 
-    return NextResponse.json(slots);
-  } catch (error) {
-    console.error('Error fetching slots:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+  return NextResponse.json(slots);
 }
