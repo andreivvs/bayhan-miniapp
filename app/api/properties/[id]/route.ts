@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-type RouteParams = { params: { id: string } };
-
-export async function GET(_req: NextRequest, { params }: RouteParams) {
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const id = Number(params.id);
   if (Number.isNaN(id)) {
     return NextResponse.json({ error: "Invalid id" }, { status: 400 });
@@ -17,7 +18,10 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
   return NextResponse.json(property);
 }
 
-export async function POST(req: NextRequest, { params }: RouteParams) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const id = Number(params.id);
   if (Number.isNaN(id)) {
     return NextResponse.json({ error: "Invalid id" }, { status: 400 });
